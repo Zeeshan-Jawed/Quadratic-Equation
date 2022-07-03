@@ -1,62 +1,66 @@
-// const express = require("express");
-const fs = require('fs');
-// const bodyParser = require("body-parser");
-// const equation_route = require("./routes/equation.route");
-// const app = express();
-// app.use(express.json({ limit: "50mb" }));
-// app.use(
-//   bodyParser.urlencoded({
-//     extended: true,
-//   })
-// );
-// port = 8001;
-// app.use(equation_route);
-// app.listen(port, () => {
-//   console.log(`server is start ${port}`);
-// });
-const forexe = () => {
-  let a;
-  let b;
-  let c;
+const express = require("express");
+const http = require('node:http');
+const bodyParser = require("body-parser");
+const equation_route = require("./routes/equation.route");
+const app = express();
+app.use(express.json({ limit: "50mb" }));
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
+port = 8001;
+app.use(equation_route);
+app.listen (port, () => {
+  console.log(`server is start ${port}`);
+   hitapp()
+});
+
+function hitapp(){
+  const options = {
+    hostname: 'localhost',
+    port: 8001,
+    path: '/',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  };
+  
+  const  req = http.request(options, (res) => {
+    console.log(`STATUS: ${res.statusCode}`);
+    res.on('data', (chunk) => {
+      console.log(`BODY: ${chunk}`);
+    });
+    res.on('end', () => {
+      console.log('No more data in response.');
+    });
+  });
+  
+  req.on('error', (e) => {
+    console.error(`problem with request: ${e.message}`);
+  });
+  
   const readline = require("readline").createInterface({
     input: process.stdin,
     output: process.stdout,
   });
-
-  readline.question(`Enter the first number: `, (num1) => {
-    a = num1;
+  
+   readline.question(`Enter the first number: `, (num1) => {
+   let a = num1;
     readline.question(`Enter the second number: `, (num2) => {
-      b = num2;
+      let b = num2;
       readline.question(`Enter the third number: `, (num3) => {
-        c = num3;
-        
-        equation(a, b, c);
+       let  c = num3;
+        const postData = JSON.stringify({
+          'a': a,
+          'b':b,
+          'c':c
+        });
+        req.write(postData);
+        req.end();
       });
     });
   });
-};
-const equation=(a, b, c)=>{
-  let root1, root2;
-  let discriminant = b * b - 4 * a * c;
-  if (discriminant > 0) {
-    root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
-    root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
-    result = `The roots of quadratic equation are ${root1} and ${root2} \r\n`;
-    fs.appendFile("/Users/Zeeshan/test.txt", result, (err) => {
-      if (err) {
-        console.error(err);
-      }
-    });
-    console.log(`The roots of quadratic equation are ${root1} and ${root2}`);
-  } else if (discriminant == 0) {
-    root1 = root2 = -b / (2 * a);
-    result = `The roots of quadratic equation are ${root1} and ${root2} \r\n`;
-    fs.appendFile("/Users/Zeeshan/test.txt", result, (err) => {
-      if (err) {
-        console.error(err);
-      }
-    });
-    console.log(`The roots of quadratic equation are ${root1} and ${root2}`);
-  }
 }
-forexe();
+
